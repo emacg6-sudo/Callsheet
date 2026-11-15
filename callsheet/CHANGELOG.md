@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.1
+
+- Fixes a crash at start in 0.21.0: it still tried to resume the old Know me scan, which the update removed.
+
 ## 0.21.0 (Talk it through)
 
 This is the release where the rework replaces the old Callsheet. Callsheet now keeps every message from your

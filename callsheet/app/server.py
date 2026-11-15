@@ -281,8 +281,6 @@ def main(argv=None):
         sys.exit(1)
     if not args.no_scheduler:
         httpd.app.scheduler.start()
-        if httpd.app.scanner:  # 0.6.0 index: the Know me scan (resumes a scan that was running)
-            httpd.app.scanner.start_thread()
         httpd.app.connectors.start_thread()  # 0.10.0 connectors: reads the owner's feeds on their schedule
         if httpd.app.live:  # 0.15.0 live reading: Gmail, Calendar and Slack into messages.db (Signal: on_envelope)
             httpd.app.live.start_threads()
