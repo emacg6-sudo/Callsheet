@@ -150,6 +150,7 @@ job (`Live`: whole sentences, defanged and marked; `_sink`, `_claude_stream`, St
 - `tests/fixtures/store_0_3_0.py`: frozen 0.3.0 `store.py`, used to build the 0.3.0 database.
 - `tests/fixtures/store_0_3_4.py`: frozen 0.3.4 `store.py`, used to build the 0.3.4 database.
 - `tests/fake_ha.py`: fake Home Assistant Core API (services list, notify with 400 for unknown phones, token check; records requests).
+- `tests/test_ha_route.py`: fork: notifications routed through one configured Home Assistant service (options, allowlist, body).
 - `tests/test_push.py`: 0.5.1 phone notifications: the notify-only allowlist, target listing, payloads (no body text, clipping, deep link), scheduler timing, dedupe, rate limit and batching, the urgent rules, settings validation, the test button, VIP Slack DMs, the token never in logs, no writer or model in the light check.
 - `tests/test_profile_060.py`: 0.6.0 profile: Signal source, draft aggregates, AI suggestions/questions against fakes (schema, junk, injection), the memory boundary, gating, routes.
 - `tests/test_release_060.py`: 0.6.0 assembly: the Signal source against the real store (signal-cli envelopes, a Desktop export, ignore, delete, refresh, window; no numbers or keys in the index), the chat's `id_slot` in request bodies (kept apart from the writer's), the expiring JSON fallback with a fake clock and on a model change, the chat rules' 0.5.3 wording and the relay warning.

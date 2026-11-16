@@ -81,6 +81,8 @@ class AllowlistTest(unittest.TestCase):
         calls = re.findall(r'\brequest\("(\w+)", ([^\n]+?)(?:, payload)?\)$', src, re.M)
         self.assertEqual(sorted(calls), sorted([("GET", 'api_base() + "/services"'),
                                                 ("POST", 'api_base() + "/services/notify/" + service'),
+                                                # fork: the one configured routing service (test_ha_route)
+                                                ("POST", 'f"{api_base()}/services/{domain}/{name}", body'),
                                                 # 0.16.1 texts: the phone's Last notification sensor (test_texts_0161)
                                                 ("GET", 'api_base() + "/states/" + entity_id'),
                                                 ("GET", 'api_base() + "/history/period/" + start + '

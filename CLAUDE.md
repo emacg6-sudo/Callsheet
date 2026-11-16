@@ -34,7 +34,8 @@ CDNs, no analytics). Each new destination, scope or write needs the owner's appr
 - **GitHub** (`api.github.com`, owner approved 2026-11-03): a fine-grained read-only token and the repos the owner
   picks; `github.py` allows only `GET /user/repos`, `/repos/{o}/{r}`, `/commits`, `/issues`, `/pulls`; no redirects.
 - **Home Assistant Supervisor** Core API (`http://supervisor/core/api`, `SUPERVISOR_TOKEN`, never logged, stored or
-  returned), limited by `ha.py`'s allowlist to `GET /api/services`, `POST /api/services/notify/mobile_app_<name>`,
+  returned), limited by `ha.py`'s allowlist to `GET /api/services`, `POST /api/services/notify/mobile_app_<name>` (or, when the fork's `notify_service` option is set, only
+  `POST /api/services/<domain>/<service>` for that one service, with the phone as `targets`),
   and for texts `GET /api/states/<sensor>` and `GET /api/history/period/<ts>?filter_entity_id=<sensor>`.
 - The owner's local model URL; the owner's SearXNG (below); `api.anthropic.com` (above).
 - **Connectors (0.10, owner approved 2026-11-04).** Public RSS/Atom feeds and YouTube channel feeds the owner adds in

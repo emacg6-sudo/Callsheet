@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.21.1-route1 (fork)
+
+- Optional: send phone notifications through one Home Assistant service (app options `notify_service`,
+  `notify_service_data_key`, `notify_service_extra`) instead of `notify.mobile_app_<x>`, for houses that route every
+  notification through their own script or integration. The chosen phone goes in as `targets`. Empty options keep
+  the upstream behaviour. `tests/test_ha_route.py`.
+
 ## 0.21.1
 
 - Fixes a crash at start in 0.21.0: it still tried to resume the old Know me scan, which the update removed.

@@ -16,11 +16,17 @@ The Supervisor gives the app SUPERVISOR_TOKEN when config.yaml has `homeassistan
 from the environment per request and only ever put in the Authorization header: it is never logged, stored,
 returned or put in an error message.
 
+Optional (fork): the app options `notify_service`, `notify_service_data_key` and `notify_service_extra` send every
+notification to one Home Assistant service (e.g. a house's own notification router) instead of notify.mobile_app_<x>.
+The chosen phone goes in as `targets: ["notify.mobile_app_<x>"]`; the allowlist then also admits exactly
+POST <core>/services/<domain>/<service> for that one configured service, and no longer admits notify.mobile_app_<x>.
+
 CALLSHEET_HA_API_BASE (tests only) points the client at a fake Core API.
 """
 import datetime as dt
 import json
 import os
+import pathlib
 import re
 import urllib.error
 import urllib.parse
@@ -31,11 +37,39 @@ TIMEOUT = 10
 SERVICE = re.compile(r"mobile_app_[a-z0-9_]{1,64}")
 NOTIFY_SENSOR = re.compile(r"sensor\.[a-z0-9_]{1,64}_last_notification")   # 0.16.1: the Companion app's sensor
 HISTORY_START = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00")      # a UTC time, seconds
+ROUTE_SERVICE = re.compile(r"[a-z0-9_]{1,64}\.[a-z0-9_]{1,64}")
+DATA_KEY = re.compile(r"[a-z0-9_]{1,64}")
 NOT_IN_HA = "Phone notifications work when Callsheet runs as a Home Assistant app."
 
 
 def api_base():
     return os.environ.get("CALLSHEET_HA_API_BASE", CORE_API).rstrip("/")
+
+
+def _options():
+    try:
+        o = json.loads((pathlib.Path(os.environ.get("CALLSHEET_DATA", "/data")) / "options.json").read_text())
+    except (OSError, ValueError):
+        return {}
+    return o if isinstance(o, dict) else {}
+
+
+def route():
+    """(domain, service, data_key, extra) when the app options route notifications through one HA service, else None.
+    A malformed option is ignored (notifications then go to the phone as usual)."""
+    o = _options()
+    svc = str(o.get("notify_service") or "").strip()
+    if not ROUTE_SERVICE.fullmatch(svc) or svc.startswith("notify."):
+        return None
+    key = str(o.get("notify_service_data_key") or "data").strip()
+    if not DATA_KEY.fullmatch(key):
+        key = "data"
+    try:
+        extra = json.loads(o.get("notify_service_extra") or "{}")
+    except (TypeError, ValueError):
+        extra = {}
+    domain, name = svc.split(".", 1)
+    return domain, name, key, extra if isinstance(extra, dict) else {}
 
 
 def _token():
@@ -89,6 +123,11 @@ def check_allowed(method, url):
     if method == "GET" and path.startswith(root + "/states/") \
             and NOTIFY_SENSOR.fullmatch(path[len(root + "/states/"):]):
         return
+    r = route()
+    if r:
+        if method == "POST" and path == f"{root}/services/{r[0]}/{r[1]}":
+            return
+        raise NotAllowed(f"{method} {path} is not allowed")
     prefix = root + "/services/notify/"
     if method == "POST" and path.startswith(prefix) and SERVICE.fullmatch(path[len(prefix):]):
         return
@@ -175,6 +214,18 @@ def notify(service, payload):
     """POST one notification ({message, title, data}) to notify.<service>."""
     if not isinstance(service, str) or not SERVICE.fullmatch(service):
         raise NotAllowed("not a mobile_app notify service")
+    r = route()
+    if r:
+        domain, name, key, extra = r
+        body = dict(extra)
+        body.update({"message": payload.get("message", ""), "targets": ["notify." + service]})
+        if payload.get("title"):
+            body["title"] = payload["title"]
+        data = payload.get("data") or {}
+        if data:
+            body[key] = data
+        request("POST", f"{api_base()}/services/{domain}/{name}", body)
+        return
     request("POST", api_base() + "/services/notify/" + service, payload)
 
 

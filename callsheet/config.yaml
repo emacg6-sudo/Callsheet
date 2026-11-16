@@ -1,5 +1,5 @@
 name: "Callsheet"
-version: "0.21.1"
+version: "0.21.1-route1"
 slug: "callsheet"
 description: "Your personal assistant: what needs you, what clashes and what is coming up, read from your messages by your own local model. Nothing is sent from here except an RSVP you press."
 url: "https://github.com/Starkkaman/callsheet"
@@ -38,9 +38,18 @@ backup_exclude:
   - "index.db*"
 # Optional: seed the local AI writer (an OpenAI-compatible server and model). Used only until the
 # writer is changed in Callsheet's setup; empty values change nothing.
+# Fork: optionally send notifications through one Home Assistant service instead of notify.mobile_app_<x>
+# (e.g. a house notification router). Empty = upstream behaviour. notify_service_extra is a JSON object of fixed
+# fields added to every call; notify_service_data_key names the field that carries the companion-app data.
 options:
   writer_local_url: ""
   writer_local_model: ""
+  notify_service: ""
+  notify_service_data_key: "data"
+  notify_service_extra: ""
 schema:
   writer_local_url: "str?"
   writer_local_model: "str?"
+  notify_service: "str?"
+  notify_service_data_key: "str?"
+  notify_service_extra: "str?"
