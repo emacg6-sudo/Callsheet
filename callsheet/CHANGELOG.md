@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.21.1-route1 (fork)
+## 0.21.1.1 (fork)
 
 - Optional: send phone notifications through one Home Assistant service (app options `notify_service`,
   `notify_service_data_key`, `notify_service_extra`) instead of `notify.mobile_app_<x>`, for houses that route every
